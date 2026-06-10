@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-press-start: "Press Start 2P", cursive, monospace;
+}
+
+/* Custom CSS utilities for cozy retro pixel-art aesthetic */
+.pixelated {
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Retro shadow effect */
+.retro-shadow-sm {
+  box-shadow: 2px 2px 0px 0px rgba(0,0,0,1);
+}
+
+.retro-shadow {
+  box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+}
+
+.retro-shadow-lg {
+  box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+}
+
+/* Scanline overlay for screen */
+.scanlines {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanlines::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  background-size: 100% 4px, 4px 100%;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Pixel art dither pattern styling helper */
+.pixel-grid {
+  background-size: 16px 16px;
+  background-image: 
+    linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+}
+
+/* Keyframes for shake and flash effects */
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0); }
+  10%, 30%, 50%, 70%, 90% { transform: translate(-8px, -4px); }
+  20%, 40%, 60%, 80% { transform: translate(8px, 4px); }
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes flash {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.95; }
+}
+
+.animate-flash {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: white;
+  z-index: 50;
+  pointer-events: none;
+  animation: flash 0.3s ease-out forwards;
+}
+
+@keyframes green-flash {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.8; background: #22c55e; }
+}
+
+.animate-green-flash {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 50;
+  pointer-events: none;
+  animation: green-flash 0.4s ease-out forwards;
+}
+
+/* Micro-cursor blink */
+@keyframes blink {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+.animate-blink {
+  animation: blink 0.8s infinite;
+}

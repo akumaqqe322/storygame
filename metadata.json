@@ -1,0 +1,6 @@
+{
+  "name": "Один день рождения Влада",
+  "description": "Интерактивная пиксельная новелла на день рождения Влада",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
