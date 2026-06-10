@@ -8,6 +8,20 @@ interface DialogueBoxProps {
   onNext: () => void;
 }
 
+// Helper function to scale font size based on total text length to avoid overflow
+const getTextSizeClass = (length: number) => {
+  if (length > 220) {
+    return 'text-[10px] sm:text-xs md:text-[12px]';
+  }
+  if (length > 150) {
+    return 'text-xs sm:text-[13px] md:text-[14px]';
+  }
+  if (length > 80) {
+    return 'text-[13px] sm:text-[14px] md:text-[15px]';
+  }
+  return 'text-sm sm:text-[15px] md:text-[17px]';
+};
+
 export const DialogueBox: React.FC<DialogueBoxProps> = ({ speaker, text, onNext }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -66,19 +80,17 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({ speaker, text, onNext 
     };
   }, [isTyping, text]);
 
-  // Determine speaker theme color (Влад has friendly sky blue, Мама has warm rose, others are neutrally cozy)
+  // Determine speaker theme color (Влад has friendly rose-gold, Мама has warm amber, others are neutrally cozy)
   const getSpeakerStyles = (name: string) => {
     switch (name.toLowerCase()) {
       case 'влад':
-        return 'bg-sky-500 text-white border-sky-300';
+        return 'bg-[#ffb3c7] text-[#17100c] border-[#ffdca0]/30';
       case 'мама':
-        return 'bg-rose-500 text-white border-rose-300';
+        return 'bg-[#f6c86b] text-[#17100c] border-[#ffdca0]/30';
       case 'светлана':
-        return 'bg-emerald-500 text-white border-emerald-300';
-      case 'вы':
-        return 'bg-fuchsia-500 text-white border-fuchsia-300';
+        return 'bg-[#ffeedc]/25 text-[#fff3d6] border-[#ffb3c7]/30';
       default:
-        return 'bg-amber-600 text-white border-amber-400';
+        return 'bg-[#ffeedc]/15 text-[#fff3d6] border-[#ffdca0]/20';
     }
   };
 
@@ -87,40 +99,40 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({ speaker, text, onNext 
       <div 
         id="dialogue-box-container"
         onClick={handleBoxClick}
-        className="relative mx-auto max-w-4xl w-full h-40 md:h-44 bg-slate-950/85 hover:bg-slate-950/90 border-4 border-pink-200/90 rounded-2xl p-4 md:p-6 flex flex-col justify-between cursor-pointer retro-shadow select-text transition-colors duration-200"
+        className="relative mx-auto max-w-4xl w-full h-40 md:h-44 bg-[#1a110a]/95 hover:bg-[#24170f]/95 border-2 border-[#ffdca0]/25 rounded-2xl p-4 md:p-6 flex flex-col justify-between cursor-pointer retro-shadow select-text transition-colors duration-200"
       >
-        {/* Double Border/Nook design for retro styling */}
-        <div className="absolute inset-1 border-2 border-black rounded-lg pointer-events-none opacity-50" />
+        {/* Border outline details for cozy retro style */}
+        <div className="absolute inset-0.5 border border-[#ffdca0]/10 rounded-xl pointer-events-none opacity-40" />
 
         {/* Speaker Name Tag (Renders ONLY if a speaker is specified) */}
         {speaker && (
-          <div className="absolute -top-5 left-6 flex">
-            <div className={`px-4 py-1.5 rounded-lg border-2 border-black text-xs md:text-sm font-press-start retro-shadow-sm select-none ${getSpeakerStyles(speaker)}`}>
+          <div className="absolute -top-4 left-6 flex">
+            <div className={`px-4 py-1.5 rounded-lg border border-[#ffdca0]/25 text-[10px] sm:text-xs font-press-start select-none ${getSpeakerStyles(speaker)}`}>
               {speaker}
             </div>
           </div>
         )}
 
         {/* Dialogue main text */}
-        <div className="flex-1 overflow-y-auto mt-2 select-text font-mono text-sm md:text-base leading-relaxed text-pink-50 text-shadow-sm pr-4">
+        <div className={`flex-1 overflow-hidden mt-2 select-text font-mono leading-relaxed text-[#fff3d6] ${getTextSizeClass(text.length)}`}>
           {displayedText}
           {/* Micro cursor blinking effect when writing is done */}
-          {!isTyping && <span className="inline-block w-2.5 h-4 ml-1 bg-pink-300 animate-blink" />}
+          {!isTyping && <span className="inline-block w-2.5 h-4 ml-1 bg-[#f6c86b] animate-blink" />}
         </div>
 
         {/* Down indicator / Next guide arrow */}
         <div className="flex justify-end items-center mt-2">
           {!isTyping ? (
             <motion.div 
-              className="flex items-center text-xs md:text-sm font-press-start text-pink-300 animate-pulse"
-              animate={{ x: [0, 5, 0] }}
+              className="flex items-center text-xs font-press-start text-[#ffb3c7] animate-pulse"
+              animate={{ x: [0, 4, 0] }}
               transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
             >
-              <span className="hidden sm:inline mr-1 text-[10px]">Клик / Space</span>
-              <ChevronRight className="w-4 h-4 fill-current stroke-[3]" />
+              <span className="hidden sm:inline mr-1 text-[9px] text-[#c8aa83]">Клик / Пробел</span>
+              <ChevronRight className="w-3.5 h-3.5 fill-current stroke-[3]" />
             </motion.div>
           ) : (
-            <span className="text-[10px] text-pink-400 font-mono italic">печатает...</span>
+            <span className="text-[10px] text-[#c8aa83]/60 font-mono italic">печатает...</span>
           )}
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { CharacterState } from '../../types/story';
+import { assets } from '../../config/assets';
 
 interface CharacterLayerProps {
   characters?: CharacterState[];
@@ -38,6 +39,15 @@ export const CharacterLayer: React.FC<CharacterLayerProps> = ({ characters = [] 
       sad: '😢',
       shocked: '😲',
       blush: '😳',
+      base: '👨',
+      salad: '🥗',
+      kneeling: '🙇',
+      shock: '😲',
+      frustrated: '😫',
+      congratulating: '🎉',
+      scolding: '😠',
+      smiling: '😎',
+      confused: '🤔',
     };
     const emoji = expressions[expr] || '🧑‍💻';
 
@@ -77,7 +87,11 @@ export const CharacterLayer: React.FC<CharacterLayerProps> = ({ characters = [] 
         const imageKey = `${char.id}-${char.expression}`;
         const isFailed = failedImages[imageKey];
         const fallback = getFallbackConfig(char.id, char.expression);
-        const imagePath = `/assets/characters/${char.id}/${char.expression}.png`;
+        // Resolve path from config assets first, otherwise fallback to the interpolated path
+        const charGroup = assets.characters[char.id as keyof typeof assets.characters];
+        const imagePath = charGroup && (char.expression in charGroup)
+          ? (charGroup as any)[char.expression]
+          : `/assets/characters/${char.id}/${char.expression}.png`;
 
         // Speaking state: highlight active speaker, dim non-speakers
         const opacityValue = char.isSpeaking || char.isSpeaking === undefined ? 1.0 : 0.65;

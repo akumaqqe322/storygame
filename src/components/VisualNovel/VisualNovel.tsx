@@ -7,32 +7,92 @@ import { Choice } from '../../types/story';
 import { CharacterLayer } from './CharacterLayer';
 import { DialogueBox } from './DialogueBox';
 import { ChoiceList } from './ChoiceList';
+import { getStoryProgress, saveStoryProgress, clearStoryProgress } from '../../utils/storyProgress';
+import {
+  getSoundEnabled,
+  setSoundEnabled,
+  playTextBlip,
+  playChoiceConfirm,
+  playOverlayChime,
+  playImpact,
+  playTransition
+} from '../../utils/sound';
 
 interface VisualNovelProps {
   onBackToMenu?: () => void;
 }
 
 export const VisualNovel: React.FC<VisualNovelProps> = () => {
-  const [currentSceneId, setCurrentSceneId] = useState<string>('start');
-  const [dialogueIndex, setDialogueIndex] = useState<number>(0);
+  const [showCompletedOverlay, setShowCompletedOverlay] = useState<boolean>(() => {
+    const progress = getStoryProgress();
+    return progress !== null && progress.isCompleted;
+  });
+
+  const [currentSceneId, setCurrentSceneId] = useState<string>(() => {
+    const progress = getStoryProgress();
+    if (progress && !progress.isCompleted) {
+      return progress.sceneId;
+    }
+    return 'start';
+  });
+
+  const [dialogueIndex, setDialogueIndex] = useState<number>(() => {
+    const progress = getStoryProgress();
+    if (progress && !progress.isCompleted) {
+      return progress.dialogueIndex;
+    }
+    return 0;
+  });
+
+  const [isCompleted, setIsCompleted] = useState<boolean>(() => {
+    const progress = getStoryProgress();
+    if (progress && !progress.isCompleted) {
+      return false;
+    }
+    return false;
+  });
   
   // Visual effects state
   const [isCgFailed, setIsCgFailed] = useState<boolean>(false);
   const [isBgFailed, setIsBgFailed] = useState<boolean>(false);
   const [activeEffect, setActiveEffect] = useState<'shake' | 'flash' | 'green-flash' | 'darken' | null>(null);
   
-  // Audio state (For atmosphere, mock sound system)
-  const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [soundLogged, setSoundLogged] = useState<string[]>([]);
+  // Audio state (Web Audio API synthesizers)
+  const [isSoundOn, setIsSoundOn] = useState<boolean>(() => getSoundEnabled());
 
-  // Sound play helper (safely logged to show premium capability)
+  // Sound play helper playing authentic Web Audio waveforms
   const playSoundEffect = (type: string) => {
-    if (isMuted) return;
-    setSoundLogged((prev) => [...prev.slice(-4), `🔊 [Эффект] ${type}`]);
+    if (!isSoundOn) return;
+    if (type === 'клик_текста') {
+      playTextBlip();
+    } else if (type === 'меню_выбора' || type === 'переход_сцены' || type === 'рестарт') {
+      playTransition();
+    } else if (type === 'финал' || type === 'выбор_сделан') {
+      playChoiceConfirm();
+    } else if (type === 'shake' || type === 'flash' || type === 'green-flash') {
+      playImpact();
+    }
+  };
+
+  const toggleSound = () => {
+    const nextVal = !isSoundOn;
+    setIsSoundOn(nextVal);
+    setSoundEnabled(nextVal);
   };
 
   const scene = STORY_DATA[currentSceneId] || STORY_DATA['start'];
   const currentStep = scene.dialogue[dialogueIndex];
+
+  // Save story progress automatically whenever game state changes
+  useEffect(() => {
+    if (showCompletedOverlay) return;
+
+    saveStoryProgress({
+      sceneId: currentSceneId,
+      dialogueIndex,
+      isCompleted,
+    });
+  }, [currentSceneId, dialogueIndex, isCompleted, showCompletedOverlay]);
 
   // Sync background/CG error state when scene or step changes
   useEffect(() => {
@@ -49,6 +109,13 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
         setActiveEffect(null);
       }, 500);
       return () => clearTimeout(timer);
+    }
+  }, [currentSceneId, dialogueIndex]);
+
+  // Trigger sound effect for cinematic overlay text layers
+  useEffect(() => {
+    if (currentStep?.overlayText) {
+      playOverlayChime();
     }
   }, [currentSceneId, dialogueIndex]);
 
@@ -72,9 +139,8 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
         setDialogueIndex(0);
         playSoundEffect('переход_сцены');
       } else {
-        // End of story loop backing to start
-        setCurrentSceneId('start');
-        setDialogueIndex(0);
+        // End of story reached: trigger final statistics presentation
+        setIsCompleted(true);
         playSoundEffect('финал');
       }
     }
@@ -87,8 +153,11 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
   };
 
   const restartStory = () => {
+    clearStoryProgress();
     setCurrentSceneId('start');
     setDialogueIndex(0);
+    setIsCompleted(false);
+    setShowCompletedOverlay(false);
     playSoundEffect('рестарт');
   };
 
@@ -106,7 +175,7 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
   const currentCg = currentStep?.cg;
 
   return (
-    <div className={`relative w-full h-full min-h-[500px] aspect-video max-h-[720px] mx-auto bg-slate-950 overflow-hidden border-4 border-slate-950 rounded-3xl retro-shadow-lg scanlines flex flex-col justify-between select-none ${
+    <div className={`relative w-full h-full bg-[#1a110a] overflow-hidden flex flex-col justify-between select-none ${
       activeEffect === 'shake' ? 'animate-shake' : ''
     }`}>
       
@@ -129,17 +198,17 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
             >
               {isCgFailed ? (
                 // Exquisite CG fallback frame
-                <div className="w-full h-full bg-gradient-to-br from-indigo-950 via-slate-950 to-pink-950 flex flex-col justify-center items-center text-center p-6 pixel-grid">
-                  <div className="border-2 border-dashed border-amber-300 p-8 max-w-md bg-black/60 rounded-xl retro-shadow-sm">
+                <div className="w-full h-full bg-gradient-to-br from-[#24170f] via-[#1a110a] to-[#120b08] flex flex-col justify-center items-center text-center p-6 select-none bg-opacity-95">
+                  <div className="border border-dashed border-[#f6c86b]/30 p-8 max-w-md bg-[#1a110a]/85 rounded-xl">
                     <span className="text-4xl block mb-3">🖼️</span>
-                    <h4 className="font-press-start text-[11px] text-amber-200 mb-2 leading-relaxed">
-                      [ПОЛНОЭКРАННЫЙ СПЛЭШ / CG]
+                    <h4 className="font-press-start text-[9px] text-[#f6c86b] mb-2 leading-relaxed uppercase">
+                      [Иллюстрация / CG]
                     </h4>
-                    <p className="text-sm font-mono text-zinc-300 leading-relaxed mb-1">
-                      {getFriendlyBgName(currentCg)} (Иллюстрация)
+                    <p className="text-xs font-mono text-[#fff3d6] leading-relaxed mb-1">
+                      {getFriendlyBgName(currentCg)}
                     </p>
-                    <p className="text-[10px] font-mono text-pink-400 capitalize bg-pink-950/40 p-1.5 rounded">
-                      Путь: {currentCg}
+                    <p className="text-[9px] font-mono text-[#c8aa83] bg-[#24170f] p-1.5 rounded truncate max-w-xs mx-auto border border-[#ffdca0]/5">
+                      {currentCg}
                     </p>
                   </div>
                 </div>
@@ -148,7 +217,7 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
                   src={currentCg}
                   alt="CG Scene"
                   onError={() => setIsCgFailed(true)}
-                  className="w-full h-full object-cover rounded-2xl border-2 border-pink-100/20"
+                  className="w-full h-full object-cover rounded-xl border border-[#ffdca0]/10"
                   referrerPolicy="no-referrer"
                 />
               )}
@@ -165,11 +234,11 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
             >
               {isBgFailed ? (
                 // Beautiful background fallback
-                <div className="w-full h-full bg-gradient-to-b from-sky-950 to-slate-950 flex flex-col justify-center items-center text-center pixel-grid">
-                  <div className="bg-black/60 px-4 py-3 rounded-lg border border-white/10 text-xs md:text-sm font-mono text-zinc-300">
-                    🌄 Локация: <span className="text-cyan-300 font-bold">{getFriendlyBgName(currentBg)}</span>
+                <div className="w-full h-full bg-gradient-to-b from-[#24170f] to-[#1a110a] flex flex-col justify-center items-center text-center p-4">
+                  <div className="bg-[#1a110a]/95 px-4 py-2.5 rounded-xl border border-[#ffdca0]/10 text-xs font-mono text-[#fff3d6]">
+                    🌄 Локация: <span className="text-[#f6c86b] font-bold">{getFriendlyBgName(currentBg)}</span>
                   </div>
-                  <div className="text-[10px] text-zinc-500 font-mono mt-1 select-text">
+                  <div className="text-[9px] text-[#c8aa83] font-mono mt-1.5 select-all truncate max-w-xs">
                     {currentBg}
                   </div>
                 </div>
@@ -191,47 +260,44 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
 
         {/* 4. Cinematic Dark Filter overlay on 'darken' effect */}
         {activeEffect === 'darken' && (
-          <div className="absolute inset-0 bg-black/60 mix-blend-multiply transition-opacity duration-300 pointer-events-none z-20" />
+          <div className="absolute inset-0 bg-[#120b08]/70 mix-blend-multiply transition-opacity duration-300 pointer-events-none z-20" />
         )}
       </div>
 
       {/* Interface Elements Header Layer */}
-      <div className="relative inset-x-0 top-0 p-4 flex justify-between items-center z-40 bg-gradient-to-b from-slate-950/80 to-transparent pointer-events-none select-none">
+      <div className="relative inset-x-0 top-0 p-4 flex justify-between items-center z-40 bg-gradient-to-b from-[#1a110a]/90 to-transparent pointer-events-auto select-none">
         
         {/* Return Button */}
-        <Link 
-          to="/"
-          className="pointer-events-auto flex items-center gap-2 px-3.5 py-1.5 bg-slate-950/90 border-2 border-pink-300/80 hover:border-pink-300 text-[10px] font-press-start text-pink-200 hover:text-white rounded-xl transition-all duration-150 retro-shadow-sm cursor-pointer"
-        >
-          <ArrowLeft className="w-3.5 h-3.5 stroke-[2.5]" />
-          меню
-        </Link>
-
-        {/* Game Title Logo / HUD */}
-        <div className="bg-slate-950/90 px-3 py-1 border-2 border-amber-300/80 rounded-xl flex items-center gap-2 retro-shadow-sm max-w-xs md:max-w-md">
-          <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          <span className="font-press-start text-[8px] md:text-[9px] text-amber-300 tracking-wider">
-            СЮЖЕТ: {currentSceneId.toUpperCase()}
-          </span>
+        <div className="pointer-events-auto">
+          <Link 
+            to="/"
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#1a110a]/95 border border-[#ffdca0]/15 hover:border-[#ffb3c7]/60 text-[9px] font-press-start text-[#ffb3c7] hover:text-[#fff3d6] rounded-xl transition-all duration-150 cursor-pointer shadow-md uppercase whitespace-nowrap"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 stroke-[2.5]" />
+            В меню
+          </Link>
         </div>
 
-        {/* Console Audio Controller & Reset HUD */}
-        <div className="pointer-events-auto flex gap-2">
-          {/* Mock Sound Logs trigger helper */}
+        {/* Right Console Audio & Start Over Controllers */}
+        <div className="pointer-events-auto flex items-center gap-2">
           <button
-            onClick={() => setIsMuted((p) => !p)}
-            className="p-1.5 bg-slate-950/95 rounded-lg border-2 border-slate-700 hover:border-pink-300 text-pink-300 hover:text-white cursor-pointer transition-colors"
-            title={isMuted ? 'Включить звук' : 'Выключить звук'}
+            onClick={toggleSound}
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#1a110a]/95 rounded-xl border border-[#ffdca0]/15 hover:border-[#ffb3c7] text-[#ffb3c7] hover:text-[#fff3d6] cursor-pointer transition-all duration-150 text-[9px] font-press-start uppercase shadow-md"
+            title={isSoundOn ? 'Выключить звук' : 'Включить звук'}
           >
-            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            {isSoundOn ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">Звук: {isSoundOn ? 'вкл' : 'выкл'}</span>
+            <span className="inline sm:hidden">{isSoundOn ? 'вкл' : 'выкл'}</span>
           </button>
           
           <button
             onClick={restartStory}
-            className="p-1.5 bg-slate-950/95 rounded-lg border-2 border-slate-700 hover:border-pink-300 text-zinc-400 hover:text-white cursor-pointer transition-colors"
-            title="Перезапустить сюжет"
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#1a110a]/95 border border-[#ffdca0]/15 hover:border-[#ffb3c7]/60 text-[9px] font-press-start text-[#c8aa83] hover:text-[#fff3d6] rounded-xl transition-all duration-150 cursor-pointer shadow-md uppercase whitespace-nowrap"
+            title="Очистить прогресс и начать сначала"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Начать заново</span>
+            <span className="inline sm:hidden">Заново</span>
           </button>
         </div>
       </div>
@@ -240,14 +306,14 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
       <AnimatePresence>
         {currentStep?.overlayText && (
           <motion.div
-            className="absolute inset-0 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs z-30 pointer-events-none select-none"
+            className="absolute inset-0 flex items-center justify-center bg-[#1a110a]/85 backdrop-blur-xs z-30 pointer-events-none select-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6 }}
           >
             <motion.h2 
-              className="text-center font-press-start text-xs sm:text-base md:text-xl text-amber-300 px-6 font-bold uppercase tracking-widest text-shadow-lg"
+              className="text-center font-press-start text-[11px] sm:text-sm md:text-base text-[#f6c86b] px-6 font-bold uppercase tracking-widest text-shadow-lg"
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', damping: 15 }}
@@ -258,17 +324,10 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
         )}
       </AnimatePresence>
 
-      {/* 6. Audio Logs simulation for pristine game feel */}
-      {soundLogged.length > 0 && !isMuted && (
-        <div className="absolute top-16 left-4 max-w-[200px] bg-black/60 rounded p-1.5 font-mono text-[9px] text-green-400 pointer-events-none z-10 space-y-0.5 border border-green-500/15">
-          {soundLogged.map((log, idx) => (
-            <div key={idx} className="opacity-75">{log}</div>
-          ))}
-        </div>
-      )}
+
 
       {/* 7. Dialog box layer */}
-      {!showChoices && (
+      {!isCompleted && !showChoices && (
         <DialogueBox
           key={currentSceneId + '-' + dialogueIndex}
           speaker={currentStep?.speaker}
@@ -279,11 +338,154 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
 
       {/* 8. Choices overlays (Triggered only when forced selection is active) */}
       <AnimatePresence>
-        {showChoices && (
+        {!isCompleted && showChoices && (
           <ChoiceList
             choices={scene.choices || []}
             onChoiceSelect={handleChoiceSelect}
           />
+        )}
+      </AnimatePresence>
+
+      {/* 9. Final Stats and Navigation Screen */}
+      <AnimatePresence>
+        {isCompleted && (
+          <motion.div 
+            className="absolute inset-0 bg-[#120b08]/95 backdrop-blur-xs z-50 flex flex-col justify-center items-center p-4 md:p-6 select-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="absolute inset-0 pixel-grid opacity-20 pointer-events-none" />
+            
+            <motion.div 
+              className="w-full max-w-xl bg-[#24170f] border-2 border-[#ffdca0]/25 rounded-2xl p-6 md:p-8 flex flex-col items-center text-center absolute select-none"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              transition={{ type: 'spring', damping: 15 }}
+            >
+              {/* Retro Trophy Emoji */}
+              <div className="text-5xl md:text-6xl mb-4 animate-bounce filter drop-shadow-[0_4px_0_rgba(0,0,0,0.5)]">
+                🏆
+              </div>
+
+              {/* Heading */}
+              <h2 className="font-press-start text-[10px] sm:text-xs text-[#f6c86b] mb-2 uppercase tracking-wide">
+                Сюжетный режим завершён!
+              </h2>
+              <div className="text-[10px] font-mono text-[#c8aa83] mb-6 font-bold tracking-widest bg-[#1a110a]/80 px-3 py-1.5 rounded-lg border border-[#ffdca0]/5">
+                КВЕСТ: ОДИН ДЕНЬ РОЖДЕНИЯ ВЛАДА
+              </div>
+
+              {/* Statistics Panel */}
+              <div className="w-full text-left bg-[#1a110a] border border-[#ffdca0]/10 rounded-xl p-4 md:p-5 mb-6 font-mono text-xs space-y-3">
+                <h3 className="font-press-start text-[8px] text-[#c8aa83] mb-2 uppercase tracking-wider">
+                  СТАТИСТИКА ПРОХОЖДЕНИЯ:
+                </h3>
+                
+                <div className="space-y-2 text-[#fff3d6]">
+                  <div className="flex justify-between items-center border-b border-[#24170f] pb-1.5">
+                    <span className="text-[#c8aa83]">🥗 Салат:</span>
+                    <span className="text-[#ffb3c7] font-bold bg-[#ffb3c7]/10 px-2.5 py-0.5 rounded text-xs">Сделаем новый!</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center border-b border-[#24170f] pb-1.5">
+                    <span className="text-[#c8aa83]">💍 Кольцо:</span>
+                    <span className="text-[#f6c86b] font-bold bg-[#f6c86b]/10 px-2.5 py-0.5 rounded text-xs">Обнаружилось</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center border-b border-[#24170f] pb-1.5">
+                    <span className="text-[#c8aa83]">💂 Щапка ущанка:</span>
+                    <span className="text-[#ffeedc] font-bold bg-[#ffeedc]/10 px-2.5 py-0.5 rounded text-xs">Легендарно</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center border-b border-[#24170f] pb-1.5">
+                    <span className="text-[#c8aa83]">📈 Возраст:</span>
+                    <span className="text-[#f6c86b] font-bold bg-[#f6c86b]/10 px-2.5 py-0.5 rounded text-xs">27-й уровень</span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#c8aa83]">📅 Дата релиза:</span>
+                    <span className="text-[#ffeedc]/70 font-semibold">11.06.1999 → 11.06.2026</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Navigation Action Buttons requested by user */}
+              <div className="flex flex-col sm:flex-row gap-3 w-full">
+                
+                {/* 1. Open Archive (Primary navigation action) */}
+                <Link
+                  to="/archive"
+                  className="flex-1 py-3 bg-[#ffb3c7] hover:bg-[#ffa1b9] text-[#24170f] font-press-start text-[9px] md:text-[10px] border border-black/10 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-transform active:translate-y-0.5 font-bold uppercase"
+                >
+                  📂 Открыть альбом
+                </Link>
+
+                {/* 2. Smaller back to menu button */}
+                <Link
+                  to="/"
+                  className="py-3 px-5 bg-[#1a110a] hover:bg-[#24170f] text-[#c8aa83] hover:text-[#fff3d6] font-press-start text-[9px] md:text-[10px] border border-[#ffdca0]/10 rounded-xl flex items-center justify-center gap-1 cursor-pointer transition-transform font-bold uppercase"
+                >
+                  🏠 В меню
+                </Link>
+
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Completed Overlay Dialog Choice */}
+      <AnimatePresence>
+        {showCompletedOverlay && (
+          <div className="absolute inset-0 z-50 flex flex-col justify-center items-center bg-[#1a110a]/90 backdrop-blur-md px-4 select-none">
+            <motion.div 
+              className="w-full max-w-md flex flex-col p-6 bg-[#24170f] border-2 border-[#ffdca0]/35 rounded-2xl shadow-xl text-center relative"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: 'spring', duration: 0.5 }}
+            >
+              <div className="text-5xl mb-4">🏆</div>
+              <h3 className="font-press-start text-[10px] md:text-xs text-[#f6c86b] mb-2 uppercase tracking-wide">
+                История уже завершена!
+              </h3>
+              <p className="font-mono text-xs text-[#c8aa83] mb-6 leading-relaxed">
+                Вы успешно прошли сюжетный режим. Желаете ли вы продолжить с финальной сцены, или хотите начать прохождение заново?
+              </p>
+              
+              <div className="flex flex-col gap-3">
+                {/* Continue from end */}
+                <button
+                  onClick={() => {
+                    setShowCompletedOverlay(false);
+                    setIsCompleted(true);
+                    setCurrentSceneId('finale');
+                    setDialogueIndex(STORY_DATA['finale'].dialogue.length - 1);
+                    playSoundEffect('выбор_сделан');
+                  }}
+                  className="group relative w-full text-left p-4 bg-[#1a110a] hover:bg-[#ffeedc]/5 border border-[#ffdca0]/20 hover:border-[#f6c86b] rounded-xl transition-all duration-150 cursor-pointer text-xs sm:text-sm font-medium text-[#fff3d6] hover:text-[#f6c86b] flex items-center shadow-sm"
+                >
+                  <span className="mr-3 font-press-start text-xs text-[#c8aa83]">👉</span>
+                  <span className="font-mono flex-1 leading-relaxed">
+                    Продолжить с финала
+                  </span>
+                </button>
+
+                {/* Restart */}
+                <button
+                  onClick={restartStory}
+                  className="group relative w-full text-left p-4 bg-[#1a110a] hover:bg-[#ffeedc]/5 border border-[#ffdca0]/20 hover:border-[#ffb3c7] rounded-xl transition-all duration-150 cursor-pointer text-xs sm:text-sm font-medium text-[#fff3d6] hover:text-[#ffb3c7] flex items-center shadow-sm"
+                >
+                  <span className="mr-3 font-press-start text-xs text-[#c8aa83]">🔄</span>
+                  <span className="font-mono flex-1 leading-relaxed">
+                    Начать заново
+                  </span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>
