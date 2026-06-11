@@ -18,6 +18,100 @@ import {
   playTransition
 } from '../../utils/sound';
 
+
+const getFriendlyBgName = (pathStr: string) => {
+  if (pathStr.includes('bedroom')) return 'Комната Влада';
+  if (pathStr.includes('kitchen')) return 'Семейная кухня';
+  if (pathStr.includes('birthday-room')) return 'Праздничный зал';
+  if (pathStr.includes('abkhazia')) return 'Озеро Рица, Абхазия';
+  if (pathStr.includes('waterfall')) return 'Горный водопад';
+  if (pathStr.includes('alias-room')) return 'Гостиная (Alias)';
+  if (pathStr.includes('ending-room')) return 'Финальная комната';
+  return 'Новая локация';
+};
+
+interface CgImageProps {
+  src: string;
+}
+
+const CgImage: React.FC<CgImageProps> = ({ src }) => {
+  const [failed, setFailed] = useState<boolean>(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
+  if (failed) {
+    return (
+      <div className="w-full h-full bg-gradient-to-br from-[#24170f] via-[#1a110a] to-[#120b08] flex flex-col justify-center items-center text-center p-6 select-none bg-opacity-95">
+        <div className="border border-dashed border-[#f6c86b]/30 p-8 max-w-md bg-[#1a110a]/85 rounded-xl">
+          <span className="text-4xl block mb-3">🖼️</span>
+          <h4 className="font-press-start text-[9px] text-[#f6c86b] mb-2 leading-relaxed uppercase">
+            [Иллюстрация / CG]
+          </h4>
+          <p className="text-xs font-mono text-[#fff3d6] leading-relaxed mb-1">
+            {getFriendlyBgName(src)}
+          </p>
+          <p className="text-[9px] font-mono text-[#c8aa83] bg-[#24170f] p-1.5 rounded truncate max-w-xs mx-auto border border-[#ffdca0]/5">
+            {src}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt="CG Scene"
+      onError={() => {
+        console.warn(`Failed to load CG image: ${src}`);
+        setFailed(true);
+      }}
+      className="w-full h-full object-cover rounded-xl border border-[#ffdca0]/10"
+      referrerPolicy="no-referrer"
+    />
+  );
+};
+
+interface BackgroundImageProps {
+  src: string;
+}
+
+const BackgroundImage: React.FC<BackgroundImageProps> = ({ src }) => {
+  const [failed, setFailed] = useState<boolean>(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
+  if (failed) {
+    return (
+      <div className="w-full h-full bg-gradient-to-b from-[#24170f] to-[#1a110a] flex flex-col justify-center items-center text-center p-4">
+        <div className="bg-[#1a110a]/95 px-4 py-2.5 rounded-xl border border-[#ffdca0]/10 text-xs font-mono text-[#fff3d6]">
+          🌄 Локация: <span className="text-[#f6c86b] font-bold">{getFriendlyBgName(src)}</span>
+        </div>
+        <div className="text-[9px] text-[#c8aa83] font-mono mt-1.5 select-all truncate max-w-xs">
+          {src}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={getFriendlyBgName(src)}
+      onError={() => {
+        console.warn(`Failed to load background image: ${src}`);
+        setFailed(true);
+      }}
+      className="w-full h-full object-cover"
+      referrerPolicy="no-referrer"
+    />
+  );
+};
+
 interface VisualNovelProps {
   onBackToMenu?: () => void;
 }
@@ -53,8 +147,6 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
   });
   
   // Visual effects state
-  const [isCgFailed, setIsCgFailed] = useState<boolean>(false);
-  const [isBgFailed, setIsBgFailed] = useState<boolean>(false);
   const [activeEffect, setActiveEffect] = useState<'shake' | 'flash' | 'green-flash' | 'darken' | null>(null);
   
   // Audio state (Web Audio API synthesizers)
@@ -96,9 +188,6 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
 
   // Sync background/CG error state when scene or step changes
   useEffect(() => {
-    setIsCgFailed(false);
-    setIsBgFailed(false);
-    
     // Trigger step effect if defined
     if (currentStep?.effect) {
       setActiveEffect(currentStep.effect);
@@ -161,16 +250,6 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
     playSoundEffect('рестарт');
   };
 
-  // Get fallback representation of background names
-  const getFriendlyBgName = (pathStr: string) => {
-    if (pathStr.includes('bedroom')) return 'Комната Влада';
-    if (pathStr.includes('kitchen')) return 'Семейная кухня';
-    if (pathStr.includes('birthday-room')) return 'Праздничный зал';
-    if (pathStr.includes('abkhazia')) return 'Озеро Рица, Абхазия';
-    if (pathStr.includes('waterfall')) return 'Горный водопад';
-    return 'Новая локация';
-  };
-
   const currentBg = currentStep?.background || '/assets/backgrounds/bg-bedroom.jpg';
   const currentCg = currentStep?.cg;
 
@@ -196,31 +275,7 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
               transition={{ duration: 0.6 }}
               className="absolute inset-0 flex items-center justify-center p-2"
             >
-              {isCgFailed ? (
-                // Exquisite CG fallback frame
-                <div className="w-full h-full bg-gradient-to-br from-[#24170f] via-[#1a110a] to-[#120b08] flex flex-col justify-center items-center text-center p-6 select-none bg-opacity-95">
-                  <div className="border border-dashed border-[#f6c86b]/30 p-8 max-w-md bg-[#1a110a]/85 rounded-xl">
-                    <span className="text-4xl block mb-3">🖼️</span>
-                    <h4 className="font-press-start text-[9px] text-[#f6c86b] mb-2 leading-relaxed uppercase">
-                      [Иллюстрация / CG]
-                    </h4>
-                    <p className="text-xs font-mono text-[#fff3d6] leading-relaxed mb-1">
-                      {getFriendlyBgName(currentCg)}
-                    </p>
-                    <p className="text-[9px] font-mono text-[#c8aa83] bg-[#24170f] p-1.5 rounded truncate max-w-xs mx-auto border border-[#ffdca0]/5">
-                      {currentCg}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <img
-                  src={currentCg}
-                  alt="CG Scene"
-                  onError={() => setIsCgFailed(true)}
-                  className="w-full h-full object-cover rounded-xl border border-[#ffdca0]/10"
-                  referrerPolicy="no-referrer"
-                />
-              )}
+              <CgImage src={currentCg} />
             </motion.div>
           ) : (
             // BACKDROP LAYER + CHARACTER SPRITES
@@ -232,25 +287,7 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
               transition={{ duration: 0.5 }}
               className="absolute inset-0"
             >
-              {isBgFailed ? (
-                // Beautiful background fallback
-                <div className="w-full h-full bg-gradient-to-b from-[#24170f] to-[#1a110a] flex flex-col justify-center items-center text-center p-4">
-                  <div className="bg-[#1a110a]/95 px-4 py-2.5 rounded-xl border border-[#ffdca0]/10 text-xs font-mono text-[#fff3d6]">
-                    🌄 Локация: <span className="text-[#f6c86b] font-bold">{getFriendlyBgName(currentBg)}</span>
-                  </div>
-                  <div className="text-[9px] text-[#c8aa83] font-mono mt-1.5 select-all truncate max-w-xs">
-                    {currentBg}
-                  </div>
-                </div>
-              ) : (
-                <img
-                  src={currentBg}
-                  alt={getFriendlyBgName(currentBg)}
-                  onError={() => setIsBgFailed(true)}
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              )}
+              <BackgroundImage src={currentBg} />
             </motion.div>
           )}
         </AnimatePresence>
