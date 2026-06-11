@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { CharacterState } from '../../types/story';
 import { assets } from '../../config/assets';
@@ -10,6 +10,15 @@ interface CharacterLayerProps {
 export const CharacterLayer: React.FC<CharacterLayerProps> = ({ characters = [] }) => {
   // Keep track of image paths that fail to load, to fall back to gorgeous retro placeholders
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mediaVal = window.matchMedia('(max-width: 640px)');
+    setIsMobile(mediaVal.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mediaVal.addEventListener('change', handler);
+    return () => mediaVal.removeEventListener('change', handler);
+  }, []);
 
   const handleImageError = (charId: string, expression: string) => {
     const key = `${charId}-${expression}`;
@@ -22,9 +31,9 @@ export const CharacterLayer: React.FC<CharacterLayerProps> = ({ characters = [] 
   const getPositionClasses = (pos: 'left' | 'center' | 'right') => {
     switch (pos) {
       case 'left':
-        return 'left-1/10 md:left-1/6 transform -translate-x-1/2';
+        return 'left-[16%] sm:left-[22%] md:left-[26%] transform -translate-x-1/2';
       case 'right':
-        return 'right-1/10 md:right-1/6 transform translate-x-1/2';
+        return 'right-[16%] sm:right-[22%] md:right-[26%] transform translate-x-1/2';
       case 'center':
       default:
         return 'left-1/2 transform -translate-x-1/2';
@@ -80,8 +89,18 @@ export const CharacterLayer: React.FC<CharacterLayerProps> = ({ characters = [] 
     }
   };
 
+  const isBottomAnchor = (charId: string, expr: string): boolean => {
+    if (charId === 'mom' || charId === 'svetlana') {
+      return true;
+    }
+    if (charId === 'vlad') {
+      return ['base', 'salad', 'shock', 'frustrated', 'kneeling'].includes(expr);
+    }
+    return true; // bottom: 0 by default for everyone
+  };
+
   return (
-    <div className="absolute inset-x-0 bottom-0 top-1/4 flex justify-center items-end pointer-events-none overflow-hidden select-none z-10">
+    <div className="absolute inset-0 flex justify-center items-end pointer-events-none overflow-hidden select-none z-10">
       {characters.map((char) => {
         const positionClass = getPositionClasses(char.position);
         const imageKey = `${char.id}-${char.expression}`;
@@ -93,17 +112,87 @@ export const CharacterLayer: React.FC<CharacterLayerProps> = ({ characters = [] 
           ? (charGroup as any)[char.expression]
           : `/assets/characters/${char.id}/${char.expression}.png`;
 
+        // Sizing logic normalized to Scene 1 Vlad standard + 5%
+        // Target: Scene 1 Vlad is 84vh (80vh * 1.05) and scale 1.20 (1.15 * 1.05 = 1.20)
+        // We use extremely generous width classes so that height is ALWAYS the limiting dimension.
+        // This guarantees characters are rendered at their true, majestic height and match exactly.
+        const charCount = characters.length;
+        let widthClass = 'w-[56%] sm:w-[48%] md:w-[42%]';
+        let maxWidth = 'max-w-[600px]';
+
+        if (charCount === 1) {
+          widthClass = 'w-[68%] sm:w-[58%] md:w-[52%]';
+          maxWidth = 'max-w-[750px]';
+        } else if (charCount === 2) {
+          widthClass = 'w-[62%] sm:w-[54%] md:w-[48%]';
+          maxWidth = 'max-w-[680px]';
+        } else if (charCount >= 3) {
+          widthClass = 'w-[48%] sm:w-[42%] md:w-[36%]';
+          maxWidth = 'max-w-[520px]';
+        }
+
+        // Sizing logic normalized to Scene 1 Vlad standard + 5%
+        // Target: Scene 1 Vlad is 84vh (80vh * 1.05) and scale 1.20 (1.15 * 1.05 = 1.20)
+        const isStanding = char.expression !== 'kneeling';
+        const isGroup = charCount >= 3;
+
+        // Base height calculation with 1.05x multiplier on reference sizes
+        let baseHeightVh = 84; // Unified standard for standing characters
+        
+        if (!isStanding) {
+          baseHeightVh = 74; // Kneeling is slightly smaller but still large and present
+        } else if (isGroup) {
+          baseHeightVh = 78; // Group scenes are slightly reduced to avoid bad overlapping, but still very large (not tiny stickers)
+        }
+
+        // Apply fallback standard on top of story.ts specific values
+        let heightVh = char.heightVh || baseHeightVh;
+        if (isStanding) {
+          // If story has a small overridden height like 68, normalize to 84vh (standing) or 78vh (group)
+          if (heightVh < 80) {
+            heightVh = isGroup ? 78 : 84;
+          } else {
+            // Apply 5% boost to high-quality reference values
+            heightVh = Math.round(heightVh * 1.05);
+          }
+        } else {
+          // Kneeling
+          heightVh = 74;
+        }
+
+        const heightStyle = `${heightVh}vh`;
+
+        // Normalize and scale up
+        let baseScale = char.scale || 1.15;
+        if (isStanding) {
+          if (baseScale < 1.15) {
+            baseScale = 1.15;
+          }
+          baseScale = baseScale * 1.05; // 5% boost
+        } else {
+          baseScale = 1.15; // kneeling
+        }
+
+        const charScale = baseScale;
+
         // Speaking state: highlight active speaker, dim non-speakers
         const opacityValue = char.isSpeaking || char.isSpeaking === undefined ? 1.0 : 0.65;
-        const scaleValue = char.isSpeaking ? 1.05 : 0.95;
+        const baseScaleValue = char.isSpeaking ? 1.04 : 0.96;
+        const scaleValue = baseScaleValue * charScale;
+
+        // All characters must strictly anchor to bottom: 0 of the game field
+        // This resolves any gaps and supports cropped Mom/Svetlana/Vlad/Kirill sprites perfectly
+        const bottomClass = 'bottom-0';
 
         return (
           <motion.div
             key={`${char.id}-${char.position}`}
-            className={`absolute bottom-0 h-4/5 flex flex-col justify-end items-center max-w-[280px] w-1/3 md:w-1/4 ${positionClass}`}
+            className={`absolute ${bottomClass} flex flex-col justify-end items-center ${maxWidth} ${widthClass} ${positionClass}`}
+            style={{ height: heightStyle }}
             initial={{ y: 50, opacity: 0 }}
             animate={{ 
-              y: 0, 
+              y: char.y !== undefined ? char.y : 0, 
+              x: char.x !== undefined ? char.x : 0,
               opacity: opacityValue,
               scale: scaleValue,
             }}
@@ -132,11 +221,12 @@ export const CharacterLayer: React.FC<CharacterLayerProps> = ({ characters = [] 
               </div>
             ) : (
               // Actual sprite image with a beautiful retro outline filter
+              // object-bottom aligns the nested image strictly to the bottom edge of the box
               <img
                 src={imagePath}
                 alt={`${char.name} (${char.expression})`}
                 onError={() => handleImageError(char.id, char.expression)}
-                className="pixelated w-full h-auto max-h-[420px] object-contain drop-shadow-[0_8px_0_rgba(0,0,0,0.5)]"
+                className="pixelated w-full h-full object-contain object-bottom drop-shadow-[0_8px_0_rgba(0,0,0,0.5)] select-none pointer-events-none"
                 referrerPolicy="no-referrer"
               />
             )}

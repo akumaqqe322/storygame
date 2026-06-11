@@ -4,6 +4,11 @@ export interface CharacterState {
   expression: string; // e.g. 'neutral', 'happy', 'sad', 'shocked', 'blush'
   position: 'left' | 'center' | 'right';
   isSpeaking?: boolean; // if true, can dim other characters
+  scale?: number; // scale multiplier, e.g. 1.2
+  heightVh?: number; // custom height in vh, e.g. 75
+  anchor?: 'bottom' | 'normal'; // 'bottom' to flush to the absolute bottom of viewport, 'normal' for slightly higher
+  x?: number; // fine-tune horizontal translation offset in pixels
+  y?: number; // fine-tune vertical translation offset in pixels
 }
 
 export interface DialogueStep {

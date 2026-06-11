@@ -8,25 +8,40 @@ interface DialogueBoxProps {
   onNext: () => void;
 }
 
-// Helper function to scale font size based on total text length to avoid overflow
-const getTextSizeClass = (length: number) => {
-  if (length > 220) {
-    return 'text-[10px] sm:text-xs md:text-[12px]';
+// Deterministic font size helper based on character count and mobile threshold
+const getFontSizeStyle = (length: number, isMobileMode: boolean): React.CSSProperties => {
+  if (isMobileMode) {
+    if (length <= 90) return { fontSize: '16px', lineHeight: '1.45' };
+    if (length <= 160) return { fontSize: '15px', lineHeight: '1.45' };
+    if (length <= 240) return { fontSize: '14px', lineHeight: '1.45' };
+    return { fontSize: '13px', lineHeight: '1.45' };
+  } else {
+    if (length <= 90) return { fontSize: '18px', lineHeight: '1.5' };
+    if (length <= 160) return { fontSize: '17px', lineHeight: '1.5' };
+    if (length <= 240) return { fontSize: '16px', lineHeight: '1.5' };
+    return { fontSize: '15px', lineHeight: '1.5' };
   }
-  if (length > 150) {
-    return 'text-xs sm:text-[13px] md:text-[14px]';
-  }
-  if (length > 80) {
-    return 'text-[13px] sm:text-[14px] md:text-[15px]';
-  }
-  return 'text-sm sm:text-[15px] md:text-[17px]';
 };
 
 export const DialogueBox: React.FC<DialogueBoxProps> = ({ speaker, text, onNext }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const fullTextRef = useRef(text);
+
+  // Monitor screen width to safely adjust font size in real time
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 640px)');
+    setIsMobile(media.matches);
+    const listener = (e: MediaQueryListEvent) => {
+      setIsMobile(e.matches);
+    };
+    media.addEventListener('change', listener);
+    return () => {
+      media.removeEventListener('change', listener);
+    };
+  }, []);
 
   // Sync ref to ensure typewriter action is always bound to current text
   useEffect(() => {
@@ -99,7 +114,7 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({ speaker, text, onNext 
       <div 
         id="dialogue-box-container"
         onClick={handleBoxClick}
-        className="relative mx-auto max-w-4xl w-full h-40 md:h-44 bg-[#1a110a]/95 hover:bg-[#24170f]/95 border-2 border-[#ffdca0]/25 rounded-2xl p-4 md:p-6 flex flex-col justify-between cursor-pointer retro-shadow select-text transition-colors duration-200"
+        className="relative mx-auto max-w-4xl w-full h-40 md:h-44 bg-[#1a110a]/95 hover:bg-[#24170f]/95 border-2 border-[#ffdca0]/25 rounded-2xl p-4 md:p-6 flex flex-col justify-between cursor-pointer retro-shadow select-none transition-colors duration-200"
       >
         {/* Border outline details for cozy retro style */}
         <div className="absolute inset-0.5 border border-[#ffdca0]/10 rounded-xl pointer-events-none opacity-40" />
@@ -114,7 +129,10 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({ speaker, text, onNext 
         )}
 
         {/* Dialogue main text */}
-        <div className={`flex-1 overflow-hidden mt-2 select-text font-mono leading-relaxed text-[#fff3d6] ${getTextSizeClass(text.length)}`}>
+        <div 
+          className="flex-1 overflow-hidden mt-1 md:mt-2 select-none font-mono text-[#fff3d6]"
+          style={getFontSizeStyle(text.length, isMobile)}
+        >
           {displayedText}
           {/* Micro cursor blinking effect when writing is done */}
           {!isTyping && <span className="inline-block w-2.5 h-4 ml-1 bg-[#f6c86b] animate-blink" />}

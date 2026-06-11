@@ -68,7 +68,7 @@ const CgImage: React.FC<CgImageProps> = ({ src }) => {
         console.warn(`Failed to load CG image: ${src}`);
         setFailed(true);
       }}
-      className="w-full h-full object-cover rounded-xl border border-[#ffdca0]/10"
+      className="w-full h-full object-cover select-none pointer-events-none"
       referrerPolicy="no-referrer"
     />
   );
@@ -85,9 +85,41 @@ const BackgroundImage: React.FC<BackgroundImageProps> = ({ src }) => {
     setFailed(false);
   }, [src]);
 
+  if (src === 'loading') {
+    return (
+      <div className="w-full h-full bg-[#120b08] flex flex-col justify-center items-center text-center p-6 select-none relative scanlines">
+        {/* Subtle decorative frame */}
+        <div className="absolute inset-4 border border-[#ffdca0]/10 rounded-xl pointer-events-none opacity-40" />
+        {/* Animated cozy light glow in background */}
+        <div className="absolute w-72 h-72 bg-[#f6c86b]/5 rounded-full filter blur-3xl pointer-events-none select-none animate-pulse" />
+
+        <div className="z-10 bg-[#1a110a]/90 backdrop-blur-sm border border-[#ffdca0]/15 p-6 rounded-2xl max-w-sm w-full shadow-[0_12px_42px_rgba(0,0,0,0.8)] flex flex-col items-center">
+          <span className="text-4xl block mb-2 animate-bounce">🎁</span>
+          
+          <h1 className="font-press-start text-[10px] md:text-xs text-[#f6c86b] tracking-widest uppercase mb-4 leading-relaxed">
+            Один день рождения
+          </h1>
+
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-2 h-2 rounded-full bg-[#ffb3c7] animate-ping" />
+            <span className="font-mono text-[10px] text-[#c8aa83] uppercase tracking-wider">
+              Влад 27.0 • Запуск
+            </span>
+          </div>
+
+          <div className="h-[1px] w-12 bg-[#ffdca0]/20 mb-4" />
+
+          <p className="font-mono text-xs text-[#fff3d6] leading-relaxed select-none text-center">
+            Тёплая и уютная интерактивная история, полная неожиданных приключений и семейных мемов.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (failed) {
     return (
-      <div className="w-full h-full bg-gradient-to-b from-[#24170f] to-[#1a110a] flex flex-col justify-center items-center text-center p-4">
+      <div className="w-full h-full bg-gradient-to-b from-[#24170f] to-[#1a110a] flex flex-col justify-center items-center text-center p-4 select-none">
         <div className="bg-[#1a110a]/95 px-4 py-2.5 rounded-xl border border-[#ffdca0]/10 text-xs font-mono text-[#fff3d6]">
           🌄 Локация: <span className="text-[#f6c86b] font-bold">{getFriendlyBgName(src)}</span>
         </div>
@@ -106,7 +138,7 @@ const BackgroundImage: React.FC<BackgroundImageProps> = ({ src }) => {
         console.warn(`Failed to load background image: ${src}`);
         setFailed(true);
       }}
-      className="w-full h-full object-cover"
+      className="w-full h-full object-cover select-none pointer-events-none"
       referrerPolicy="no-referrer"
     />
   );
@@ -273,7 +305,7 @@ export const VisualNovel: React.FC<VisualNovelProps> = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.6 }}
-              className="absolute inset-0 flex items-center justify-center p-2"
+              className="absolute inset-0"
             >
               <CgImage src={currentCg} />
             </motion.div>

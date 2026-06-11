@@ -27,6 +27,7 @@ export const assets = {
     mom: {
       base: "/assets/characters/mom/base.png",
       congratulating: "/assets/characters/mom/congratulating.png",
+      smiling: "/assets/characters/mom/smiling.png",
       scolding: "/assets/characters/mom/scolding.png",
     },
     svetlana: {

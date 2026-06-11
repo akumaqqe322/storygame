@@ -6,44 +6,20 @@ export const STORY_DATA: Record<string, Scene> = {
     id: 'start',
     dialogue: [
       {
-        text: 'Загрузка birthday-сценария...',
+        text: 'Тихое праздничное утро. Скоро начнется семейный день рождения...',
         speaker: undefined,
         background: 'loading',
         effect: 'darken',
-        overlayText: 'ОДИН ДЕНЬ РОЖДЕНИЯ'
+        overlayText: 'СЮЖЕТНЫЙ РЕЖИМ'
       },
       {
-        text: 'Дата релиза персонажа: 11.06.1999',
+        text: 'Каждый такой день — это новые улыбки, тёплые воспоминания и, конечно, любимые локальные мемы.',
         speaker: undefined,
         background: 'loading',
         effect: 'darken'
       },
       {
-        text: 'Текущая версия: Влад 27.0',
-        speaker: undefined,
-        background: 'loading',
-        effect: 'darken'
-      },
-      {
-        text: 'Проверка локальных мемов...\nНайдено: достаточно.',
-        speaker: undefined,
-        background: 'loading',
-        effect: 'darken'
-      },
-      {
-        text: 'Проверка салата...\nСтатус: нестабилен.',
-        speaker: undefined,
-        background: 'loading',
-        effect: 'darken'
-      },
-      {
-        text: 'Проверка кольца...\nСтатус: под сомнением.',
-        speaker: undefined,
-        background: 'loading',
-        effect: 'darken'
-      },
-      {
-        text: 'Загрузка завершена! Нажмите клик/Enter для запуска сюжетного режима...',
+        text: 'Приготовьтесь к небольшому, уютному приключению. Поехали!',
         speaker: undefined,
         background: 'loading',
         effect: 'darken'
@@ -55,7 +31,12 @@ export const STORY_DATA: Record<string, Scene> = {
     id: 'scene_1_sleep',
     dialogue: [
       {
-        text: 'Тёплый день. Море где-то впереди. Влад идёт на пляж с родителями.',
+        text: 'Тёплый день. Море где-то впереди.',
+        speaker: undefined,
+        background: assets.backgrounds.abkhazia
+      },
+      {
+        text: 'Влад идёт на пляж с родителями.',
         speaker: undefined,
         background: assets.backgrounds.abkhazia
       },
@@ -69,7 +50,10 @@ export const STORY_DATA: Record<string, Scene> = {
             name: 'Влад',
             expression: 'base',
             position: 'center',
-            isSpeaking: true
+            isSpeaking: true,
+            scale: 1.15,
+            heightVh: 80,
+            anchor: 'bottom'
           }
         ]
       },
@@ -83,7 +67,10 @@ export const STORY_DATA: Record<string, Scene> = {
             name: 'Влад',
             expression: 'base',
             position: 'center',
-            isSpeaking: false
+            isSpeaking: false,
+            scale: 1.15,
+            heightVh: 80,
+            anchor: 'bottom'
           }
         ]
       },
@@ -97,7 +84,10 @@ export const STORY_DATA: Record<string, Scene> = {
             name: 'Влад',
             expression: 'frustrated',
             position: 'center',
-            isSpeaking: true
+            isSpeaking: true,
+            scale: 1.15,
+            heightVh: 80,
+            anchor: 'bottom'
           }
         ]
       },
@@ -111,7 +101,10 @@ export const STORY_DATA: Record<string, Scene> = {
             name: 'Влад',
             expression: 'frustrated',
             position: 'center',
-            isSpeaking: false
+            isSpeaking: false,
+            scale: 1.15,
+            heightVh: 80,
+            anchor: 'bottom'
           }
         ]
       },
@@ -125,7 +118,10 @@ export const STORY_DATA: Record<string, Scene> = {
             name: 'Влад',
             expression: 'shock',
             position: 'center',
-            isSpeaking: true
+            isSpeaking: true,
+            scale: 1.25,
+            heightVh: 82,
+            anchor: 'bottom'
           }
         ],
         effect: 'shake'
@@ -133,44 +129,17 @@ export const STORY_DATA: Record<string, Scene> = {
       {
         text: 'Море есть. Дорога есть. Родителей нет.',
         speaker: undefined,
-        background: assets.backgrounds.abkhazia,
-        characters: [
-          {
-            id: 'vlad',
-            name: 'Влад',
-            expression: 'shock',
-            position: 'center',
-            isSpeaking: false
-          }
-        ]
+        cg: assets.cg.dreamAbkhazia
       },
       {
         text: 'Блин, вот же такое приснится...',
         speaker: 'Влад',
-        background: assets.backgrounds.abkhazia,
-        characters: [
-          {
-            id: 'vlad',
-            name: 'Влад',
-            expression: 'frustrated',
-            position: 'center',
-            isSpeaking: true
-          }
-        ]
+        cg: assets.cg.dreamAbkhazia
       },
       {
         text: 'Не могли же они меня реально забыть где-нибудь на базаре.',
         speaker: 'Влад',
-        background: assets.backgrounds.abkhazia,
-        characters: [
-          {
-            id: 'vlad',
-            name: 'Влад',
-            expression: 'base',
-            position: 'center',
-            isSpeaking: true
-          }
-        ]
+        cg: assets.cg.dreamAbkhazia
       }
     ],
     nextSceneId: 'scene_2_morning'
@@ -181,167 +150,213 @@ export const STORY_DATA: Record<string, Scene> = {
       {
         text: 'Влад просыпается. На этот раз вроде всё спокойно.',
         speaker: undefined,
-        background: assets.backgrounds.bedroom,
+        background: 'assets/backgrounds/bg-bedroom.jpg',
         effect: 'flash'
       },
       {
         text: 'С днём рождения!',
         speaker: 'Мама',
-        background: assets.backgrounds.bedroom,
+        background: 'assets/backgrounds/bg-bedroom.jpg',
         characters: [
           {
             id: 'mom',
             name: 'Мама',
-            expression: 'congratulating',
+            expression: 'smiling',
             position: 'left',
-            isSpeaking: true
+            isSpeaking: true,
+            scale: 1.16,
+            heightVh: 78,
+            anchor: 'bottom'
           },
           {
             id: 'vlad',
             name: 'Влад',
             expression: 'shock',
             position: 'right',
-            isSpeaking: false
+            isSpeaking: false,
+            scale: 1.16,
+            heightVh: 78,
+            anchor: 'bottom'
           }
         ]
       },
       {
         text: 'Ну всё, плюс один уровень официально получен.',
         speaker: 'Кирилл',
-        background: assets.backgrounds.bedroom,
+        background: 'assets/backgrounds/bg-bedroom.jpg',
         characters: [
           {
             id: 'mom',
             name: 'Мама',
-            expression: 'congratulating',
+            expression: 'base',
             position: 'left',
-            isSpeaking: false
+            isSpeaking: false,
+            scale: 1.16,
+            heightVh: 68,
+            anchor: 'bottom'
           },
           {
             id: 'you',
             name: 'Кирилл',
             expression: 'congratulating',
             position: 'center',
-            isSpeaking: true
+            isSpeaking: true,
+            scale: 1.16,
+            heightVh: 68
           },
           {
             id: 'vlad',
             name: 'Влад',
             expression: 'base',
             position: 'right',
-            isSpeaking: false
+            isSpeaking: false,
+            scale: 1.16,
+            heightVh: 68,
+            anchor: 'bottom'
           }
         ]
       },
       {
         text: 'Так... Это уже реальность?',
         speaker: 'Влад',
-        background: assets.backgrounds.bedroom,
+        background: 'assets/backgrounds/bg-bedroom.jpg',
         characters: [
           {
             id: 'mom',
             name: 'Мама',
             expression: 'base',
             position: 'left',
-            isSpeaking: false
+            isSpeaking: false,
+            scale: 1.16,
+            heightVh: 68,
+            anchor: 'bottom'
           },
           {
             id: 'you',
             name: 'Кирилл',
             expression: 'base',
             position: 'center',
-            isSpeaking: false
+            isSpeaking: false,
+            scale: 1.16,
+            heightVh: 68
           },
           {
             id: 'vlad',
             name: 'Влад',
             expression: 'shock',
             position: 'right',
-            isSpeaking: true
+            isSpeaking: true,
+            scale: 1.16,
+            heightVh: 68,
+            anchor: 'bottom'
           }
         ]
       },
       {
         text: 'Вроде да. Но гарантий никто не давал.',
         speaker: 'Кирилл',
-        background: assets.backgrounds.bedroom,
+        background: 'assets/backgrounds/bg-bedroom.jpg',
         characters: [
           {
             id: 'mom',
             name: 'Мама',
             expression: 'base',
             position: 'left',
-            isSpeaking: false
+            isSpeaking: false,
+            scale: 1.16,
+            heightVh: 68,
+            anchor: 'bottom'
           },
           {
             id: 'you',
             name: 'Кирилл',
             expression: 'congratulating',
             position: 'center',
-            isSpeaking: true
+            isSpeaking: true,
+            scale: 1.16,
+            heightVh: 68
           },
           {
             id: 'vlad',
             name: 'Влад',
             expression: 'base',
             position: 'right',
-            isSpeaking: false
+            isSpeaking: false,
+            scale: 1.16,
+            heightVh: 68,
+            anchor: 'bottom'
           }
         ]
       },
       {
         text: 'Сегодня у тебя день рождения, так что давай без подозрений. Иди лучше помоги немного.',
         speaker: 'Мама',
-        background: assets.backgrounds.bedroom,
+        background: 'assets/backgrounds/bg-bedroom.jpg',
         characters: [
           {
             id: 'mom',
             name: 'Мама',
-            expression: 'congratulating',
+            expression: 'base',
             position: 'left',
-            isSpeaking: true
+            isSpeaking: true,
+            scale: 1.16,
+            heightVh: 68,
+            anchor: 'bottom'
           },
           {
             id: 'you',
             name: 'Кирилл',
             expression: 'base',
             position: 'center',
-            isSpeaking: false
+            isSpeaking: false,
+            scale: 1.16,
+            heightVh: 68
           },
           {
             id: 'vlad',
             name: 'Влад',
             expression: 'base',
             position: 'right',
-            isSpeaking: false
+            isSpeaking: false,
+            scale: 1.16,
+            heightVh: 68,
+            anchor: 'bottom'
           }
         ]
       },
       {
         text: 'Вот так всегда. День рождения мой, а квесты семейные.',
         speaker: 'Влад',
-        background: assets.backgrounds.bedroom,
+        background: 'assets/backgrounds/bg-bedroom.jpg',
         characters: [
           {
             id: 'mom',
             name: 'Мама',
             expression: 'base',
             position: 'left',
-            isSpeaking: false
+            isSpeaking: false,
+            scale: 1.16,
+            heightVh: 68,
+            anchor: 'bottom'
           },
           {
             id: 'you',
             name: 'Кирилл',
             expression: 'base',
             position: 'center',
-            isSpeaking: false
+            isSpeaking: false,
+            scale: 1.16,
+            heightVh: 68
           },
           {
             id: 'vlad',
             name: 'Влад',
             expression: 'frustrated',
             position: 'right',
-            isSpeaking: true
+            isSpeaking: true,
+            scale: 1.16,
+            heightVh: 68,
+            anchor: 'bottom'
           }
         ]
       }
@@ -454,29 +469,74 @@ export const STORY_DATA: Record<string, Scene> = {
     id: 'scene_3a_vlad_salad',
     dialogue: [
       {
-        text: 'Ты берёшь салат.',
+        text: 'Ты берёшь салат. Влад несёт его крайне ответственно.',
         speaker: undefined,
-        cg: assets.cg.saladVladDrop
+        background: assets.backgrounds.kitchen,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'salad',
+            position: 'center',
+            isSpeaking: false
+          }
+        ]
       },
       {
         text: 'Уверенно.',
         speaker: undefined,
-        cg: assets.cg.saladVladDrop
+        background: assets.backgrounds.kitchen,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'salad',
+            position: 'center',
+            isSpeaking: false
+          }
+        ]
       },
       {
         text: 'Даже слишком уверенно.',
         speaker: undefined,
-        cg: assets.cg.saladVladDrop
+        background: assets.backgrounds.kitchen,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'salad',
+            position: 'center',
+            isSpeaking: false
+          }
+        ]
       },
       {
         text: 'Да нормально, я донесу.',
         speaker: 'Влад',
-        cg: assets.cg.saladVladDrop
+        background: assets.backgrounds.kitchen,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'salad',
+            position: 'center',
+            isSpeaking: true
+          }
+        ]
       },
       {
         text: 'Салат делает последний поворот в своей жизни.',
         speaker: undefined,
-        cg: assets.cg.saladVladDrop,
+        background: assets.backgrounds.kitchen,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'shock',
+            position: 'center',
+            isSpeaking: false
+          }
+        ],
         effect: 'shake'
       },
       {
@@ -511,29 +571,109 @@ export const STORY_DATA: Record<string, Scene> = {
     id: 'scene_3b_you_salad',
     dialogue: [
       {
-        text: 'Кирилл берёт салат.',
+        text: 'Кирилл берёт салат. Под твоё бдительное око.',
         speaker: undefined,
-        cg: assets.cg.saladYouDrop
+        background: assets.backgrounds.kitchen,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'base',
+            position: 'left',
+            isSpeaking: false
+          },
+          {
+            id: 'you',
+            name: 'Кирилл',
+            expression: 'salad',
+            position: 'right',
+            isSpeaking: false
+          }
+        ]
       },
       {
         text: 'Ты смотришь на это с лёгким недоверием.',
         speaker: undefined,
-        cg: assets.cg.saladYouDrop
+        background: assets.backgrounds.kitchen,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'frustrated',
+            position: 'left',
+            isSpeaking: false
+          },
+          {
+            id: 'you',
+            name: 'Кирилл',
+            expression: 'salad',
+            position: 'right',
+            isSpeaking: false
+          }
+        ]
       },
       {
         text: 'Смотри только аккуратно.',
         speaker: 'Влад',
-        cg: assets.cg.saladYouDrop
+        background: assets.backgrounds.kitchen,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'base',
+            position: 'left',
+            isSpeaking: true
+          },
+          {
+            id: 'you',
+            name: 'Кирилл',
+            expression: 'salad',
+            position: 'right',
+            isSpeaking: false
+          }
+        ]
       },
       {
         text: 'Да всё оки, я понёс.',
         speaker: 'Кирилл',
-        cg: assets.cg.saladYouDrop
+        background: assets.backgrounds.kitchen,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'base',
+            position: 'left',
+            isSpeaking: false
+          },
+          {
+            id: 'you',
+            name: 'Кирилл',
+            expression: 'salad',
+            position: 'right',
+            isSpeaking: true
+          }
+        ]
       },
       {
         text: 'Ситуация продержалась примерно две секунды.',
         speaker: undefined,
-        cg: assets.cg.saladYouDrop,
+        background: assets.backgrounds.kitchen,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'shock',
+            position: 'left',
+            isSpeaking: false
+          },
+          {
+            id: 'you',
+            name: 'Кирилл',
+            expression: 'base',
+            position: 'right',
+            isSpeaking: false
+          }
+        ],
         effect: 'shake'
       },
       {
@@ -667,18 +807,26 @@ export const STORY_DATA: Record<string, Scene> = {
         background: assets.backgrounds.waterfall,
         characters: [
           {
-            id: 'vlad',
-            name: 'Влад',
-            expression: 'kneeling',
-            position: 'left',
-            isSpeaking: true
-          },
-          {
             id: 'svetlana',
             name: 'Светлана',
             expression: 'base',
+            position: 'left',
+            isSpeaking: false,
+            scale: 1.18,
+            heightVh: 78,
+            x: 55,
+            anchor: 'bottom'
+          },
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'base',
             position: 'right',
-            isSpeaking: false
+            isSpeaking: true,
+            scale: 1.18,
+            heightVh: 78,
+            x: -55,
+            anchor: 'bottom'
           }
         ]
       },
@@ -688,39 +836,55 @@ export const STORY_DATA: Record<string, Scene> = {
         background: assets.backgrounds.waterfall,
         characters: [
           {
-            id: 'vlad',
-            name: 'Влад',
-            expression: 'kneeling',
-            position: 'left',
-            isSpeaking: false
-          },
-          {
             id: 'svetlana',
             name: 'Светлана',
             expression: 'smiling',
+            position: 'left',
+            isSpeaking: true,
+            scale: 1.18,
+            heightVh: 78,
+            x: 55,
+            anchor: 'bottom'
+          },
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'base',
             position: 'right',
-            isSpeaking: true
+            isSpeaking: false,
+            scale: 1.18,
+            heightVh: 78,
+            x: -55,
+            anchor: 'bottom'
           }
         ]
       },
       {
-        text: 'Влад встаёт на одно колено в праздничной позе.',
+        text: 'Влад встаёт на одно колено.',
         speaker: undefined,
         background: assets.backgrounds.waterfall,
         characters: [
           {
-            id: 'vlad',
-            name: 'Влад',
-            expression: 'kneeling',
-            position: 'left',
-            isSpeaking: false
-          },
-          {
             id: 'svetlana',
             name: 'Светлана',
             expression: 'smiling',
+            position: 'left',
+            isSpeaking: false,
+            scale: 1.18,
+            heightVh: 78,
+            x: 55,
+            anchor: 'bottom'
+          },
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'kneeling',
             position: 'right',
-            isSpeaking: false
+            isSpeaking: false,
+            scale: 1.18,
+            heightVh: 78,
+            x: -55,
+            anchor: 'bottom'
           }
         ]
       },
@@ -730,18 +894,26 @@ export const STORY_DATA: Record<string, Scene> = {
         background: assets.backgrounds.waterfall,
         characters: [
           {
-            id: 'vlad',
-            name: 'Влад',
-            expression: 'kneeling',
-            position: 'left',
-            isSpeaking: true
-          },
-          {
             id: 'svetlana',
             name: 'Светлана',
             expression: 'smiling',
+            position: 'left',
+            isSpeaking: false,
+            scale: 1.18,
+            heightVh: 78,
+            x: 55,
+            anchor: 'bottom'
+          },
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'kneeling',
             position: 'right',
-            isSpeaking: false
+            isSpeaking: true,
+            scale: 1.18,
+            heightVh: 78,
+            x: -55,
+            anchor: 'bottom'
           }
         ]
       },
@@ -763,7 +935,7 @@ export const STORY_DATA: Record<string, Scene> = {
         cg: assets.cg.proposalEmptyRing
       },
       {
-        text: 'Ё-моё.',
+        text: 'Окак...',
         speaker: 'Влад',
         cg: assets.cg.proposalEmptyRing
       },
@@ -851,7 +1023,7 @@ export const STORY_DATA: Record<string, Scene> = {
           {
             id: 'mom',
             name: 'Мама',
-            expression: 'congratulating',
+            expression: 'smiling',
             position: 'center',
             isSpeaking: true
           },
@@ -906,72 +1078,230 @@ export const STORY_DATA: Record<string, Scene> = {
       {
         text: 'Команда соперников получает слово уровня “чай”. И конечно, угадывают его ровно за 0.1 секунды.',
         speaker: undefined,
-        cg: assets.cg.aliasShapkaUshanka
+        background: assets.backgrounds.aliasRoom,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'base',
+            position: 'left',
+            isSpeaking: false
+          },
+          {
+            id: 'you',
+            name: 'Кирилл',
+            expression: 'base',
+            position: 'right',
+            isSpeaking: false
+          }
+        ]
       },
       {
         text: 'Ну конечно. Всё подстроено!',
         speaker: 'Влад',
-        cg: assets.cg.aliasShapkaUshanka
+        background: assets.backgrounds.aliasRoom,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'frustrated',
+            position: 'left',
+            isSpeaking: true
+          },
+          {
+            id: 'you',
+            name: 'Кирилл',
+            expression: 'base',
+            position: 'right',
+            isSpeaking: false
+          }
+        ]
       },
       {
         text: 'А вот ваша команда получает слово, которое будто бы только что специально достали из словаря вековых страданий.',
         speaker: undefined,
-        cg: assets.cg.aliasShapkaUshanka
+        background: assets.backgrounds.aliasRoom,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'frustrated',
+            position: 'left',
+            isSpeaking: false
+          },
+          {
+            id: 'you',
+            name: 'Кирилл',
+            expression: 'base',
+            position: 'right',
+            isSpeaking: false
+          }
+        ]
       },
       {
-        text: 'Так, объясняй быстрее.',
+        text: 'Так, объясняй, но я не пойму.',
         speaker: 'Кирилл',
-        cg: assets.cg.aliasShapkaUshanka
+        background: assets.backgrounds.aliasRoom,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'base',
+            position: 'left',
+            isSpeaking: false
+          },
+          {
+            id: 'you',
+            name: 'Кирилл',
+            expression: 'base',
+            position: 'right',
+            isSpeaking: true
+          }
+        ]
       },
       {
-        text: 'Да как такое приличное слово объяснить вообще за минуту?!',
+        text: 'Да как такое вообще отгадывать?!',
         speaker: 'Влад',
-        cg: assets.cg.aliasShapkaUshanka
+        background: assets.backgrounds.aliasRoom,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'frustrated',
+            position: 'left',
+            isSpeaking: true
+          },
+          {
+            id: 'you',
+            name: 'Кирилл',
+            expression: 'base',
+            position: 'right',
+            isSpeaking: false
+          }
+        ]
       },
       {
         text: 'Обстановка в гостиной накаляется до предела. Баланс игры вызывает глубочайшие вопросы.',
         speaker: undefined,
-        cg: assets.cg.aliasShapkaUshanka
+        background: assets.backgrounds.aliasRoom,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'frustrated',
+            position: 'left',
+            isSpeaking: false
+          },
+          {
+            id: 'mom',
+            name: 'Мама',
+            expression: 'base',
+            position: 'center',
+            isSpeaking: false
+          },
+          {
+            id: 'you',
+            name: 'Кирилл',
+            expression: 'base',
+            position: 'right',
+            isSpeaking: false
+          }
+        ]
       },
       {
         text: 'Ну у нас же просто обычные, абсолютно нормальные слова попадаются.',
         speaker: 'Мама',
-        cg: assets.cg.aliasShapkaUshanka
+        background: assets.backgrounds.aliasRoom,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'frustrated',
+            position: 'left',
+            isSpeaking: false
+          },
+          {
+            id: 'mom',
+            name: 'Мама',
+            expression: 'smiling',
+            position: 'center',
+            isSpeaking: true
+          },
+          {
+            id: 'you',
+            name: 'Кирилл',
+            expression: 'base',
+            position: 'right',
+            isSpeaking: false
+          }
+        ]
       },
       {
         text: 'Нормальные?',
         speaker: 'Влад',
-        cg: assets.cg.aliasShapkaUshanka
+        background: assets.backgrounds.aliasRoom,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'shock',
+            position: 'left',
+            isSpeaking: true
+          },
+          {
+            id: 'mom',
+            name: 'Мама',
+            expression: 'base',
+            position: 'center',
+            isSpeaking: false
+          }
+        ]
       },
       {
-        text: 'Да вам там попадается что-то абсолютно невероятное... уровня...',
+        text: 'Да вам там попадается что-то уровня...',
+        speaker: 'Влад',
+        background: assets.backgrounds.aliasRoom,
+        characters: [
+          {
+            id: 'vlad',
+            name: 'Влад',
+            expression: 'shock',
+            position: 'left',
+            isSpeaking: true
+          },
+          {
+            id: 'mom',
+            name: 'Мама',
+            expression: 'base',
+            position: 'center',
+            isSpeaking: false
+          }
+        ]
+      },
+      {
+        text: 'ЩАПКА УЩАНКА',
         speaker: 'Влад',
         cg: assets.cg.aliasShapkaUshanka,
         overlayText: 'ЩАПКА УЩАНКА',
         effect: 'green-flash'
       },
       {
-        text: 'Всё. Это теперь официально фраза дня.',
-        speaker: 'Кирилл',
-        cg: assets.cg.aliasShapkaUshanka
-      },
-      {
-        text: 'Запомнили, шапка-но-с-буквой-Щ!',
-        speaker: 'Светлана',
-        cg: assets.cg.aliasShapkaUshanka
-      },
-      {
-        text: 'Я правда совсем не понимаю, что в этом такого смешного.',
-        speaker: 'Мама',
-        cg: assets.cg.aliasShapkaUshanka
-      },
-      {
-        text: 'Вот именно это неведение и делает шутку шедевром!',
+        text: 'Ну я не верю, как это возможно.',
         speaker: 'Влад',
         cg: assets.cg.aliasShapkaUshanka
       },
       {
-        text: 'НЕ, НУ ИМ РЕАЛЬНО ВЫПАДАЕТ СКОПЛЕНИЕ КУРЬЁЗОВ, А ОНИ ЕЩЁ И СУМЕЛИ ЭТО СДАВАТЬ!',
+        text: 'Хахаха, а мы побеждаем!',
+        speaker: 'Светлана',
+        cg: assets.cg.aliasShapkaUshanka
+      },
+      {
+        text: 'Ты чего так реагируешь, Владик?',
+        speaker: 'Мама',
+        cg: assets.cg.aliasShapkaUshanka
+      },
+      {
+        text: 'НЕ НУ ИМ РЕАЛЬНО ШАПКА УШАНКА ПАДАЕТ, А ОНИ ЕЩЕ И ОБЪЯСНЯЮТ КАК "УШКИ НА МОКУШКЕ=ШАПКА УШАНКА"',
         speaker: undefined,
         cg: assets.cg.aliasShapkaUshanka
       }
