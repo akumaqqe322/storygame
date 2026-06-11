@@ -91,7 +91,7 @@ export const CharacterLayer: React.FC<CharacterLayerProps> = ({ characters = [] 
         const charGroup = assets.characters[char.id as keyof typeof assets.characters];
         const imagePath = charGroup && (char.expression in charGroup)
           ? (charGroup as any)[char.expression]
-          : `/assets/characters/${char.id}/${char.expression}.png`;
+          : `/assets/characters/${char.id}/${char.expression}.jpg`;
 
         // Speaking state: highlight active speaker, dim non-speakers
         const opacityValue = char.isSpeaking || char.isSpeaking === undefined ? 1.0 : 0.65;
