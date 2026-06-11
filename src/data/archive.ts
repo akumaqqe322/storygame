@@ -1,3 +1,6 @@
+import { withBase } from '../utils/base';
+export { withBase };
+
 export type ArchiveItem =
   | {
       type: 'photo';
@@ -28,6 +31,10 @@ export type ArchiveSpread = {
   items: ArchiveItem[];
 };
 
+
+export const photoSrc = (index: number) =>
+  withBase(`assets/photos/photo-${String(index).padStart(3, '0')}.jpg`);
+
 export const archiveSpreads: ArchiveSpread[] = [
   {
     id: 'first_pages',
@@ -43,7 +50,7 @@ export const archiveSpreads: ArchiveSpread[] = [
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-001.jpg',
+        src: photoSrc(1),
         position: 'right',
         rotation: 3,
         size: 'lg'
@@ -57,21 +64,21 @@ export const archiveSpreads: ArchiveSpread[] = [
     items: [
       {
         type: 'photo',
-        src: '/assets/photos/photo-002.jpg',
+        src: photoSrc(2),
         position: 'left',
         rotation: -4,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-003.jpg',
+        src: photoSrc(3),
         position: 'left',
         rotation: 3,
         size: 'sm'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-004.jpg',
+        src: photoSrc(4),
         position: 'right',
         rotation: -3,
         size: 'md'
@@ -92,7 +99,7 @@ export const archiveSpreads: ArchiveSpread[] = [
     items: [
       {
         type: 'photo',
-        src: '/assets/photos/photo-005.jpg',
+        src: photoSrc(5),
         position: 'left',
         rotation: -3,
         size: 'md'
@@ -106,14 +113,14 @@ export const archiveSpreads: ArchiveSpread[] = [
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-006.jpg',
+        src: photoSrc(6),
         position: 'right',
         rotation: 4,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-007.jpg',
+        src: photoSrc(7),
         position: 'right',
         rotation: -2,
         size: 'md'
@@ -127,28 +134,28 @@ export const archiveSpreads: ArchiveSpread[] = [
     items: [
       {
         type: 'photo',
-        src: '/assets/photos/photo-008.jpg',
+        src: photoSrc(8),
         position: 'left',
         rotation: 4,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-009.jpg',
+        src: photoSrc(9),
         position: 'left',
         rotation: -2,
         size: 'sm'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-010.jpg',
+        src: photoSrc(10),
         position: 'right',
         rotation: 2,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-011.jpg',
+        src: photoSrc(11),
         position: 'right',
         rotation: -4,
         size: 'sm'
@@ -162,21 +169,21 @@ export const archiveSpreads: ArchiveSpread[] = [
     items: [
       {
         type: 'photo',
-        src: '/assets/photos/photo-012.jpg',
+        src: photoSrc(12),
         position: 'left',
         rotation: -3,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-013.jpg',
+        src: photoSrc(13),
         position: 'left',
         rotation: 4,
         size: 'sm'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-014.jpg',
+        src: photoSrc(14),
         position: 'right',
         rotation: -2,
         size: 'md'
@@ -197,28 +204,28 @@ export const archiveSpreads: ArchiveSpread[] = [
     items: [
       {
         type: 'photo',
-        src: '/assets/photos/photo-015.jpg',
+        src: photoSrc(15),
         position: 'left',
         rotation: 2,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-016.jpg',
+        src: photoSrc(16),
         position: 'left',
         rotation: -4,
         size: 'sm'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-017.jpg',
+        src: photoSrc(17),
         position: 'right',
         rotation: 3,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-018.jpg',
+        src: photoSrc(18),
         position: 'right',
         rotation: -2,
         size: 'sm'
@@ -232,28 +239,28 @@ export const archiveSpreads: ArchiveSpread[] = [
     items: [
       {
         type: 'photo',
-        src: '/assets/photos/photo-019.jpg',
+        src: photoSrc(19),
         position: 'left',
         rotation: -4,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-020.jpg',
+        src: photoSrc(20),
         position: 'left',
         rotation: 3,
         size: 'sm'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-021.jpg',
+        src: photoSrc(21),
         position: 'right',
         rotation: -2,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-022.jpg',
+        src: photoSrc(22),
         position: 'right',
         rotation: 5,
         size: 'sm'
@@ -267,28 +274,28 @@ export const archiveSpreads: ArchiveSpread[] = [
     items: [
       {
         type: 'photo',
-        src: '/assets/photos/photo-023.jpg',
+        src: photoSrc(23),
         position: 'left',
         rotation: 3,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-024.jpg',
+        src: photoSrc(24),
         position: 'left',
         rotation: -2,
         size: 'sm'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-025.jpg',
+        src: photoSrc(25),
         position: 'right',
         rotation: 4,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-026.jpg',
+        src: photoSrc(26),
         position: 'right',
         rotation: -3,
         size: 'sm'
@@ -302,28 +309,28 @@ export const archiveSpreads: ArchiveSpread[] = [
     items: [
       {
         type: 'photo',
-        src: '/assets/photos/photo-027.jpg',
+        src: photoSrc(27),
         position: 'left',
         rotation: -3,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-028.jpg',
+        src: photoSrc(28),
         position: 'left',
         rotation: 4,
         size: 'sm'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-029.jpg',
+        src: photoSrc(29),
         position: 'right',
         rotation: -2,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-030.jpg',
+        src: photoSrc(30),
         position: 'right',
         rotation: 3,
         size: 'sm'
@@ -337,28 +344,28 @@ export const archiveSpreads: ArchiveSpread[] = [
     items: [
       {
         type: 'photo',
-        src: '/assets/photos/photo-031.jpg',
+        src: photoSrc(31),
         position: 'left',
         rotation: 4,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-032.jpg',
+        src: photoSrc(32),
         position: 'left',
         rotation: -2,
         size: 'sm'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-033.jpg',
+        src: photoSrc(33),
         position: 'right',
         rotation: 3,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-034.jpg',
+        src: photoSrc(34),
         position: 'right',
         rotation: -4,
         size: 'sm'
@@ -372,28 +379,28 @@ export const archiveSpreads: ArchiveSpread[] = [
     items: [
       {
         type: 'photo',
-        src: '/assets/photos/photo-035.jpg',
+        src: photoSrc(35),
         position: 'left',
         rotation: -3,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-036.jpg',
+        src: photoSrc(36),
         position: 'left',
         rotation: 2,
         size: 'sm'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-037.jpg',
+        src: photoSrc(37),
         position: 'right',
         rotation: -4,
         size: 'md'
       },
       {
         type: 'photo',
-        src: '/assets/photos/photo-038.jpg',
+        src: photoSrc(38),
         position: 'right',
         rotation: 3,
         size: 'sm'

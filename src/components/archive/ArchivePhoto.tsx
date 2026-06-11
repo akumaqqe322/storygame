@@ -1,20 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Camera, EyeOff } from 'lucide-react';
+import { Camera } from 'lucide-react';
 
 interface ArchivePhotoProps {
   src: string;
   rotation?: number;
   size?: 'sm' | 'md' | 'lg';
   position?: 'left' | 'right' | 'center';
+  onClick?: () => void;
+  isClickable?: boolean;
 }
 
 export const ArchivePhoto: React.FC<ArchivePhotoProps> = ({
   src,
   rotation = 0,
   size = 'md',
+  onClick,
+  isClickable = false,
 }) => {
   const [hasError, setHasError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Reset states when photo sources change (highly important for spread rendering reuse)
+  useEffect(() => {
+    setHasError(false);
+    setIsLoaded(false);
+  }, [src]);
 
   // Size mapping
   const sizeClasses = {
@@ -33,15 +44,31 @@ export const ArchivePhoto: React.FC<ArchivePhotoProps> = ({
   ];
   const tapeColor = tapeColors[Math.abs(rotation) % tapeColors.length];
 
+  const canClick = isClickable && !hasError;
+
   return (
     <motion.div
-      className={`relative p-3 bg-[#fdfaf2] text-[#24170f] rounded-xs shadow-[0_8px_24px_rgba(0,0,0,0.15)] border border-[#dfd5b2]/60 select-none flex flex-col justify-between ${selectedSizeClass}`}
+      className={`relative p-3 bg-[#fdfaf2] text-[#24170f] rounded-xs shadow-[0_8px_24px_rgba(0,0,0,0.15)] border border-[#dfd5b2]/60 select-none flex flex-col justify-between focus:outline-hidden focus:ring-2 focus:ring-[#f6c86b] focus:ring-offset-2 ${selectedSizeClass} ${
+        canClick ? 'cursor-pointer hover:shadow-[0_12px_32px_rgba(0,0,0,0.25)]' : ''
+      }`}
       style={{ rotate: `${rotation}deg` }}
-      whileHover={{ 
-        scale: 1.03, 
-        rotate: rotation + (rotation >= 0 ? 1 : -1),
-        shadow: '0_12px_32px_rgba(0,0,0,0.2)' 
+      onClick={() => {
+        if (canClick && onClick) {
+          onClick();
+        }
       }}
+      tabIndex={canClick ? 0 : undefined}
+      role={canClick ? 'button' : undefined}
+      onKeyDown={(e) => {
+        if (canClick && onClick && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      whileHover={canClick ? { 
+        scale: 1.04, 
+        rotate: rotation + (rotation >= 0 ? 1 : -1),
+      } : undefined}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
       {/* Visual Tape at the top of the photo to make it look pasted */}
@@ -52,8 +79,8 @@ export const ArchivePhoto: React.FC<ArchivePhotoProps> = ({
 
       <div className="relative aspect-square w-full bg-[#1e130b] overflow-hidden rounded-xs border border-stone-200 shadow-inner flex items-center justify-center">
         {hasError ? (
-          <div className="absolute inset-0 p-4 bg-gradient-to-br from-[#1a110a] to-[#2a1b10] flex flex-col items-center justify-center text-center select-none">
-            <div className="p-3 bg-white/5 rounded-full mb-3 border border-white/10 animate-pulse text-[#ebb340]">
+          <div className="absolute inset-0 p-4 bg-gradient-to-br from-[#1a110a] to-[#2a1b10] flex flex-col items-center justify-center text-center select-none z-10">
+            <div className="p-3 bg-white/5 rounded-full mb-3 border border-white/10 text-[#ebb340]">
               <Camera className="w-6 h-6" />
             </div>
             <span className="font-mono text-[10px] sm:text-xs text-[#ffdca0] font-semibold tracking-wide block uppercase">
@@ -64,13 +91,36 @@ export const ArchivePhoto: React.FC<ArchivePhotoProps> = ({
             </span>
           </div>
         ) : (
-          <img
-            src={src}
-            alt="Воспоминание"
-            onError={() => setHasError(true)}
-            className="w-full h-full object-cover grayscale-15 hover:grayscale-0 transition-all duration-300"
-            referrerPolicy="no-referrer"
-          />
+          <>
+            {/* Warm pixelated/cozy photography loading skeleton */}
+            {!isLoaded && (
+              <div className="absolute inset-0 bg-stone-900 flex flex-col items-center justify-center animate-pulse z-10">
+                <div className="w-10 h-10 rounded-full bg-[#dfd5b2]/10 border border-[#dfd5b2]/20 flex items-center justify-center text-[#dfd5b2]/40">
+                  <Camera className="w-5 h-5 animate-bounce" />
+                </div>
+                <span className="font-mono text-[9px] uppercase tracking-widest text-[#dfd5b2]/40 mt-2">
+                  Проявка...
+                </span>
+              </div>
+            )}
+
+            <img
+              src={src}
+              alt="Воспоминание"
+              loading="lazy"
+              decoding="async"
+              draggable={false}
+              onLoad={() => setIsLoaded(true)}
+              onError={() => {
+                setHasError(true);
+                setIsLoaded(false);
+              }}
+              className={`w-full h-full object-cover grayscale-15 hover:grayscale-0 transition-opacity duration-500 ease-in-out ${
+                isLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              referrerPolicy="no-referrer"
+            />
+          </>
         )}
       </div>
     </motion.div>

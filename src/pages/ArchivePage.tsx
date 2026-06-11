@@ -2,18 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ArrowLeft, ArrowRight, BookOpen, HardDrive, ArrowUpLeft, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { archiveSpreads } from '../data/archive';
+import { archiveSpreads, withBase } from '../data/archive';
 import { AlbumCover } from '../components/archive/AlbumCover';
 import { AlbumSpread } from '../components/archive/AlbumSpread';
+import { PhotoLightbox } from '../components/archive/PhotoLightbox';
 
 export const ArchivePage: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [slideDirection, setSlideDirection] = useState(1);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
+
+  // Collect all photos from all spreads for unified lightbox navigation
+  const allPhotos = archiveSpreads.flatMap((spread) =>
+    spread.items.filter((item) => item.type === 'photo')
+  ) as { type: 'photo'; src: string; rotation?: number; size?: 'sm' | 'md' | 'lg'; position?: 'left' | 'right' | 'center' }[];
 
   // Keyboard navigation for active album
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // If a photo in the lightbox is being inspected, suspend page-level arrow keys
+      if (selectedPhotoIndex !== null) return;
       if (!isOpen) return;
       if (e.key === 'ArrowRight') {
         handleNext();
@@ -27,7 +36,26 @@ export const ArchivePage: React.FC = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, currentPage]);
+  }, [isOpen, currentPage, selectedPhotoIndex]);
+
+  const handlePhotoOpen = (src: string) => {
+    const idx = allPhotos.findIndex((p) => p.src === src);
+    if (idx !== -1) {
+      setSelectedPhotoIndex(idx);
+    }
+  };
+
+  const handleNextPhoto = () => {
+    if (selectedPhotoIndex !== null) {
+      setSelectedPhotoIndex((prev) => (prev !== null ? (prev + 1) % allPhotos.length : null));
+    }
+  };
+
+  const handlePrevPhoto = () => {
+    if (selectedPhotoIndex !== null) {
+      setSelectedPhotoIndex((prev) => (prev !== null ? (prev - 1 + allPhotos.length) % allPhotos.length : null));
+    }
+  };
 
   const handleNext = () => {
     if (currentPage < archiveSpreads.length - 1) {
@@ -54,7 +82,7 @@ export const ArchivePage: React.FC = () => {
       {/* Parallax Background Texture Layer */}
       <div 
         className="absolute inset-0 bg-cover bg-center select-none opacity-35 pointer-events-none mix-blend-overlay"
-        style={{ backgroundImage: 'url("/assets/archive/archive-bg-texture.jpg")' }}
+        style={{ backgroundImage: `url("${withBase('/assets/archive/archive-bg-texture.jpg')}")` }}
       />
       {/* Dark tint overlay for absolute readability */}
       <div className="absolute inset-0 bg-black/35 pointer-events-none" />
@@ -65,11 +93,11 @@ export const ArchivePage: React.FC = () => {
       {/* Retro decorative corner ornaments from decorations asset */}
       <div 
         className="absolute top-0 left-0 w-32 h-32 opacity-20 pointer-events-none select-none bg-contain bg-no-repeat bg-left-top"
-        style={{ backgroundImage: 'url("/assets/archive/archive-decorations.jpg")' }}
+        style={{ backgroundImage: `url("${withBase('/assets/archive/archive-decorations.jpg')}")` }}
       />
       <div 
         className="absolute bottom-0 right-0 w-32 h-32 opacity-20 pointer-events-none select-none bg-contain bg-no-repeat bg-right-bottom rotate-180"
-        style={{ backgroundImage: 'url("/assets/archive/archive-decorations.jpg")' }}
+        style={{ backgroundImage: `url("${withBase('/assets/archive/archive-decorations.jpg')}")` }}
       />
 
       {/* Decorative floral or retro header HUD */}
@@ -84,7 +112,7 @@ export const ArchivePage: React.FC = () => {
         {/* Nice little aesthetic decorations sticker */}
         <div 
           className="hidden sm:block w-32 h-6 opacity-35 bg-cover pointer-events-none select-none"
-          style={{ backgroundImage: 'url("/assets/archive/archive-decorations.jpg")' }}
+          style={{ backgroundImage: `url("${withBase('/assets/archive/archive-decorations.jpg')}")` }}
         />
       </header>
 
@@ -101,6 +129,7 @@ export const ArchivePage: React.FC = () => {
               <AlbumSpread 
                 spread={archiveSpreads[currentPage]} 
                 direction={slideDirection} 
+                onPhotoOpen={handlePhotoOpen}
               />
             </div>
 
@@ -174,6 +203,18 @@ export const ArchivePage: React.FC = () => {
         <span className="hidden sm:block">АРХИВНЫЙ ДАТА-БЛОК СИСТЕМЫ ПАМЯТИ</span>
         <span>РАЗРАБОТАНО ДЛЯ ВЛАДА</span>
       </footer>
+
+      {/* Fullscreen interactive pixel/cozy photolightbox modal */}
+      {selectedPhotoIndex !== null && (
+        <PhotoLightbox
+          src={allPhotos[selectedPhotoIndex].src}
+          currentIndex={selectedPhotoIndex}
+          totalCount={allPhotos.length}
+          onClose={() => setSelectedPhotoIndex(null)}
+          onNext={handleNextPhoto}
+          onPrev={handlePrevPhoto}
+        />
+      )}
     </div>
   );
 };

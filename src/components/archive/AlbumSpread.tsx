@@ -1,15 +1,16 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArchiveSpread, ArchiveItem } from '../../data/archive';
+import { ArchiveSpread, ArchiveItem, withBase } from '../../data/archive';
 import { ArchivePhoto } from './ArchivePhoto';
 import { ArchiveNote } from './ArchiveNote';
 
 interface AlbumSpreadProps {
   spread: ArchiveSpread;
   direction: number; // -1 for prev page, 1 for next page
+  onPhotoOpen?: (src: string) => void;
 }
 
-export const AlbumSpread: React.FC<AlbumSpreadProps> = ({ spread, direction }) => {
+export const AlbumSpread: React.FC<AlbumSpreadProps> = ({ spread, direction, onPhotoOpen }) => {
   const { title, subtitle, items } = spread;
 
   // Filter items based on positions to support Left & Right book pages
@@ -36,6 +37,8 @@ export const AlbumSpread: React.FC<AlbumSpreadProps> = ({ spread, direction }) =
             rotation={item.rotation}
             size={item.size}
             position={item.position}
+            onClick={() => onPhotoOpen && onPhotoOpen(item.src)}
+            isClickable={!!onPhotoOpen}
           />
         );
       case 'note':
@@ -130,7 +133,7 @@ export const AlbumSpread: React.FC<AlbumSpreadProps> = ({ spread, direction }) =
             <div 
               className="absolute inset-0 bg-cover bg-center select-none opacity-90 pointer-events-none"
               style={{ 
-                backgroundImage: 'url("/assets/archive/archive-opened-book.jpg")',
+                backgroundImage: `url("${withBase('/assets/archive/archive-opened-book.jpg')}")`,
                 mixBlendMode: 'normal' 
               }}
             />

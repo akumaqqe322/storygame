@@ -7,6 +7,7 @@ import { Choice } from '../../types/story';
 import { CharacterLayer } from './CharacterLayer';
 import { DialogueBox } from './DialogueBox';
 import { ChoiceList } from './ChoiceList';
+import { withBase } from '../../utils/base';
 import { getStoryProgress, saveStoryProgress, clearStoryProgress } from '../../utils/storyProgress';
 import {
   getSoundEnabled,
@@ -62,7 +63,7 @@ const CgImage: React.FC<CgImageProps> = ({ src }) => {
 
   return (
     <img
-      src={src}
+      src={withBase(src)}
       alt="CG Scene"
       onError={() => {
         console.warn(`Failed to load CG image: ${src}`);
@@ -132,7 +133,7 @@ const BackgroundImage: React.FC<BackgroundImageProps> = ({ src }) => {
 
   return (
     <img
-      src={src}
+      src={withBase(src)}
       alt={getFriendlyBgName(src)}
       onError={() => {
         console.warn(`Failed to load background image: ${src}`);

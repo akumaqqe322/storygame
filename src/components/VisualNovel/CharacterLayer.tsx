@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { CharacterState } from '../../types/story';
 import { assets } from '../../config/assets';
+import { withBase } from '../../utils/base';
 
 interface CharacterLayerProps {
   characters?: CharacterState[];
@@ -223,7 +224,7 @@ export const CharacterLayer: React.FC<CharacterLayerProps> = ({ characters = [] 
               // Actual sprite image with a beautiful retro outline filter
               // object-bottom aligns the nested image strictly to the bottom edge of the box
               <img
-                src={imagePath}
+                src={withBase(imagePath)}
                 alt={`${char.name} (${char.expression})`}
                 onError={() => handleImageError(char.id, char.expression)}
                 className="pixelated w-full h-full object-contain object-bottom drop-shadow-[0_8px_0_rgba(0,0,0,0.5)] select-none pointer-events-none"

@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { BookOpen, ArrowLeft, Heart, Flower } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { withBase } from '../../data/archive';
 
 interface AlbumCoverProps {
   onOpenAlbum: () => void;
@@ -20,7 +21,7 @@ export const AlbumCover: React.FC<AlbumCoverProps> = ({ onOpenAlbum }) => {
       {/* Visual cover background pattern with custom blended image */}
       <div 
         className="absolute inset-0 bg-cover bg-center select-none opacity-95 pointer-events-none"
-        style={{ backgroundImage: 'url("/assets/archive/archive-cover.jpg")' }}
+        style={{ backgroundImage: `url("${withBase('/assets/archive/archive-cover.jpg')}")` }}
       />
       {/* Warm leather ambient texture overlay */}
       <div className="absolute inset-0 bg-gradient-to-tr from-[#140b06]/65 via-black/25 to-[#f6c86b]/15 pointer-events-none" />
